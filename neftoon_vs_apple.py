@@ -1,6 +1,6 @@
 import pygame
 import random
-# 5import time
+import datetime
 
 pygame.init()
 
@@ -15,7 +15,7 @@ clock = pygame.time.Clock()
 nefton_pic = pygame.image.load('nefton_250.png')
 apple_pic = pygame.image.load('real_apple.png')
 background = pygame.image.load('background.jpeg')
-leibniz_pic = pygame.image.load('leibniz.jpg')
+leibniz_pic = pygame.image.load('leibniz.png')
 partialdiff_pic = pygame.image.load('partialdif.png')
 
 
@@ -43,26 +43,38 @@ class Player(object):
             elif nefton.x == win_width + nefton.boundary - 120:
                 nefton.x = - nefton.boundary - 100
 
-            if (apple.hitbox[1] - nefton.hitbox[3] <= nefton.hitbox[1] <= apple.hitbox[1] + apple.hitbox[3] and
-                    apple.hitbox[0] - nefton.hitbox[2] <= nefton.hitbox[0] <= apple.hitbox[0] + apple.hitbox[2]):
-                    nefton.hit()
-                    window.blit(partialdiff_pic, (nefton.x + 50, nefton.y + 50))
+            if ((apple.hitbox[1] - nefton.hitbox[3] <= nefton.hitbox[1] <= apple.hitbox[1] + apple.hitbox[3] and
+                    apple.hitbox[0] - nefton.hitbox[2] <= nefton.hitbox[0] <= apple.hitbox[0] + apple.hitbox[2]) or
+                    (apple_r.hitbox[1] - nefton.hitbox[3] <= nefton.hitbox[1] <= apple_r.hitbox[1] + apple_r.hitbox[3]
+                     and apple_r.hitbox[0] - nefton.hitbox[2] <= nefton.hitbox[0] <= apple_r.hitbox[0] +
+                     apple_r.hitbox[2]) or (apple_l.hitbox[1] - nefton.hitbox[3] <= nefton.hitbox[1] <=
+                                            apple_l.hitbox[1]+ apple_l.hitbox[3] and apple_l.hitbox[0] -
+                                            nefton.hitbox[2] <= nefton.hitbox[0] <= apple_l.hitbox[0] +
+                                            apple_l.hitbox[2])):
+                nefton.hit()
+                window.blit(partialdiff_pic, (nefton.x + 50, nefton.y + 50))
 
             self.hitbox = (self.x + 78, self.y, 90, 250)
-            pygame.draw.rect(window, (255, 0, 0), self.hitbox, 1)
+            # pygame.draw.rect(window, (255, 0, 0), self.hitbox, 1)
 
             pygame.draw.rect(window, (255, 0, 0), (self.hitbox[0] - (-100), self.hitbox[1], 99, 10))
             pygame.draw.rect(window, (0, 255, 0), (self.hitbox[0] - (-100), self.hitbox[1], 99 - (99 - self.hp), 10))
 
             pygame.draw.rect(window, (255, 255, 0), (self.hitbox[0] - (-100), self.hitbox[1] - (-15), 99, 10))
-            pygame.draw.rect(window, (0, 255, 255), (self.hitbox[0] - (-100), self.hitbox[1] - (-15), 99 - ((99 / 3) * (3 - self.life)), 10))
+            pygame.draw.rect(window, (0, 255, 255), (self.hitbox[0] - (-100), self.hitbox[1] -
+                                                     (-15), 99 - ((99 / 3) * (3 - self.life)), 10))
 
-    def hit(self):
+    @staticmethod
+    def hit():
 
         if nefton.hp > 33:
             nefton.hp -= 33
             apple.y = - 60
             apple.x = random.randint(50, win_width - 50)
+            apple_l.x = -59
+            apple_r.x = 999
+            apple_l.y = -60
+            apple_r.y = -60
         elif nefton.life > 1:
             apple.x = random.randint(50, win_width - 50)
             apple.y = - 60
@@ -70,6 +82,7 @@ class Player(object):
             nefton.life -= 1
             apple.speed_actual = apple.speed_start
             nefton.hp = 99
+            apple.apple_spawn_count = apple.abbruch
         else:
             apple.speed_actual = 0
             nefton.hp = 0
@@ -88,6 +101,8 @@ class Apple(object):
         self.speed_start = 7
         self.hitbox = (self.x, self.y, 60, 60)
         self.count = 0
+        self.apple_spawn_count = 3  # final ändern
+        self.abbruch = 3
         self.count_final = 0
         self.next_speed = 10
 
@@ -95,15 +110,38 @@ class Apple(object):
 
         if apple.y < win_hight:
             apple.y += apple.speed_actual
+            apple_l.y += apple.speed_actual
+            apple_r.y += apple.speed_actual
+            apple_l.x = -59
+            apple_r.x = 999
         elif apple.count == apple.next_speed:
             apple.next_speed = apple.next_speed + 10
             apple.speed_actual += 3
+        elif apple.count == apple.apple_spawn_count and apple.apple_spawn_count > 0:
+            apple.apple_spawn_count += apple.abbruch  # final ändern
+            apple.x = nefton.x + 80
+            apple.y = - 60
+            apple_l.x = -59
+            apple_r.x = 999
+            apple_l.y = -60
+            apple_r.y = -60
+            apple.count += 1
         else:
             apple.y = - 60
             apple.x = random.randint(50, win_width - 50)
+            apple_l.y = -60
+            apple_r.y = -60
+            apple_l.x = -59
+            apple_r.x = 999
             apple.count += 1
+
         self.hitbox = (self.x, self.y, 60, 60)
-        pygame.draw.rect(window, (255, 0, 0), self.hitbox, 1)
+        #pygame.draw.rect(window, (255, 0, 0), self.hitbox, 1)
+
+        apple_r.hitbox = (apple_r.x, apple_r.y, 60, 60)
+        # pygame.draw.rect(window, (255, 0, 0), apple_r.hitbox, 1)
+        apple_l.hitbox = (apple_l.x, apple_l.y, 60, 60)
+        #pygame.draw.rect(window, (255, 0, 0), apple_l.hitbox, 1)
 
         if apple.count >= 1 + apple.count_final:
             apple.count_final += 1
@@ -114,8 +152,6 @@ class Basket(object):
         self.width = width
         self.hight = hight
         self.picture = pygame.image.load('korb.png')
-
-    #def draw(self, window):
 
 
 def redraw_game_window():
@@ -131,6 +167,8 @@ def redraw_game_window():
 
     window.blit(nefton_pic, (nefton.x, nefton.y))
     window.blit(apple_pic, (apple.x, apple.y))
+    window.blit(apple_pic, (apple_l.x, apple_l.y))
+    window.blit(apple_pic, (apple_r.x, apple_r.y))
 
     if nefton.life == 3:
         window.blit(basket_1.picture, (790, 70))
@@ -141,6 +179,7 @@ def redraw_game_window():
         window.blit(basket_3.picture, (930, 70))
     elif nefton.life == 1:
         window.blit(basket_3.picture, (930, 70))
+    elif nefton.life == 1 and nefton.hp == 33:
         window.blit(leibniz_pic, (nefton.x, nefton.y))
 
     pygame.display.update()
@@ -148,6 +187,8 @@ def redraw_game_window():
 
 nefton = Player(win_width - win_width // 2, win_hight - win_hight // 4, 250, 250, 3)
 apple = Apple(random.randint(0, win_width), - 60, 60, 60, 30)
+apple_l = Apple(-59, -60, 60, 60, 30)
+apple_r = Apple(999, -60, 60, 60, 30)
 font_apple = pygame.font.SysFont('arial', 50, True, True)
 font_highscore = pygame.font.SysFont('arial', 50, True, True)
 basket_1 = Basket(60, 60)
@@ -162,8 +203,41 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
-        if nefton.visible == False:
-            print('score: ' + str(apple.count_final))
+        if not nefton.visible:
+
+            def save_score(score):
+                with open("score_list.txt", "a") as file:
+                    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    file.write(f"{score} {current_time}\n")
+
+
+            def get_scores():
+                scores = []
+                with open("score_list.txt", "r") as file:
+                    for line in file:
+                        if line.strip():
+                            score, _ = line.strip().split(" ", 1)
+                            scores.append(int(score))
+                return scores
+
+
+            def get_highest_score():
+                scores = get_scores()
+                if scores:
+                    highest_score = max(scores)
+                    return highest_score
+                else:
+                    return None
+
+
+            save_score(apple.count_final)
+
+            highest_score = get_highest_score()
+            if highest_score:
+                print(f"Highscore: {highest_score}")
+            else:
+                print("Noch keine Punkte erfasst.")
+
             run = False
 
     keys = pygame.key.get_pressed()
