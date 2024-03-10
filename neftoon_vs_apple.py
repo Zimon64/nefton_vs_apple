@@ -61,11 +61,18 @@ class Player(object):
                                                                    apple_2.hitbox[0] + apple_2.hitbox[2])):
                 nefton.hit()
                 window.blit(partialdiff_pic, (nefton.x + 50, nefton.y + 50))
+
             elif (golden_apple.hitbox[1] - nefton.hitbox[3] <= nefton.hitbox[1] <= golden_apple.hitbox[1] +
                   golden_apple.hitbox[3] and golden_apple.hitbox[0] - nefton.hitbox[2] <= nefton.hitbox[0] <=
                   golden_apple.hitbox[0] + golden_apple.hitbox[2]):
                 nefton.death()
                 window.blit(partialdiff_pic, (nefton.x + 50, nefton.y + 50))
+
+            elif (principia.hitbox[1] - nefton.hitbox[3] <= nefton.hitbox[1] <= principia.hitbox[1] +
+                  principia.hitbox[3] and principia.hitbox[0] - nefton.hitbox[2] <= nefton.hitbox[0] <=
+                  principia.hitbox[0] + principia.hitbox[2]):
+                nefton.extra_life()
+                window.blit(leibniz_pic, (nefton.x, nefton.y))
 
             self.hitbox = (self.x + 78, self.y, 90, 250)
             # pygame.draw.rect(window, (255, 0, 0), self.hitbox, 1)
@@ -91,6 +98,7 @@ class Player(object):
             golden_apple.y = -60
             if apple.count >= apple.count_next_apple:
                 apple_2.y = apple.y
+            print('d/dx')
         elif nefton.life > 1:
             apple.x = random.randint(50, win_width - 50)
             apple.y = - 60
@@ -103,12 +111,12 @@ class Player(object):
             apple.speed_actual = apple.speed_start
             nefton.hp = 99
             apple.apple_spawn_count = apple.abbruch
+            print('d/dx')
         else:
             apple.speed_actual = 0
             nefton.hp = 0
             nefton.visible = False
-            print('game over')
-        print('d/dx')
+            print('\ngame over')
 
     @staticmethod
     def death():
@@ -116,7 +124,15 @@ class Player(object):
         apple.speed_actual = 0
         nefton.hp = 0
         nefton.visible = False
-        print('game over')
+        print('\ngame over')
+
+
+    @staticmethod
+    def extra_life():
+
+        nefton.hp = 99
+
+        print('\nextra life!!!')
 
 
 class Apple(object):
@@ -135,6 +151,7 @@ class Apple(object):
         self.count_final = 0
         self.count_next_apple = 20
         self.next_speed = 10
+        self.death_number = 30
 
     def draw(self, window):
 
@@ -181,7 +198,7 @@ class Apple(object):
             apple_r.x = 999
             apple.count += 1
 
-        if golden_apple.y <= win_hight and apple.count % 2 == 0 and apple.count > 0:
+        if golden_apple.y <= win_hight and apple.count % golden_apple.death_number == 0 and apple.count > 0:
             golden_apple.y += apple.speed_actual
         else:
             golden_apple.x = random.randint(50, win_width - 50)
@@ -195,9 +212,11 @@ class Apple(object):
         # pygame.draw.rect(window, (255, 0, 0), apple_r.hitbox, 1)
         apple_l.hitbox = (apple_l.x, apple_l.y, 60, 60)
         # pygame.draw.rect(window, (255, 0, 0), apple_l.hitbox, 1)
-        if apple.count % 2 == 0 and apple.count > 0:
+        if apple.count % golden_apple.death_number == 0 and apple.count > 0:
             golden_apple.hitbox = (golden_apple.x, apple_l.y, 60, 60)
             pygame.draw.rect(window, (255, 0, 0), golden_apple.hitbox, 1)
+        else:
+            golden_apple.hitbox = (golden_apple.x, golden_apple.y, 60, 60)
 
         if apple.count >= 1 + apple.count_final:
             apple.count_final += 1
@@ -221,16 +240,19 @@ class Principia(object):
     def __init__(self, x, y, width, hight):
         self.x = x
         self.y = y
+        self.coordinates = (self.x, self.y)
         self.width = width
         self.hight = hight
         self.hitbox = (self.x, self.y, 60, 60)
 
     def draw(self, window):
         if apple.count % 2 == 0 and not apple.count == 0:
-            # window.blit(principia_pic, (principia.x, principia.y))
+            window.blit(principia_pic, (self.x, self.y))
 
             self.hitbox = (self.x, self.y, 60, 60)
-            # pygame.draw.rect(window, (255, 0, 0), self.hitbox, 1)
+            pygame.draw.rect(window, (255, 0, 0), self.hitbox, 1)
+        else:
+            self.x = random.randint(60, win_width - 60)
 
 
 def redraw_game_window():
@@ -281,7 +303,7 @@ apple_r = Apple(999, -60, 60, 60, 30)
 golden_apple = Apple(random.randint(60, win_width - 60), - 60, 60, 60, 30)
 font_apple = pygame.font.SysFont('arial', 50, True, True)
 font_highscore = pygame.font.SysFont('arial', 50, True, True)
-principia = Principia(random.randint(60, win_width - 60), random.randint(750, 940), 60, 60)
+principia = Principia(random.randint(60, win_width - 60), 800, 60, 60)
 basket_1 = Basket(60, 60)
 basket_2 = Basket(60, 60)
 basket_3 = Basket(60, 60)
@@ -338,7 +360,7 @@ while run:
 
             highest_score = get_highest_score()
             if highest_score:
-                print(f"Highscore: {highest_score} \n dein Score: {apple.count_final}")
+                print(f"\nHighscore: {highest_score} \ndein Score: {apple.count_final}")
             else:
                 print("Noch keine Punkte erfasst.")
 
