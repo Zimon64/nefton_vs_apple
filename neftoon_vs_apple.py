@@ -76,9 +76,11 @@ class Player(object):
             elif (principia.hitbox[1] - nefton.hitbox[3] <= nefton.hitbox[1] <= principia.hitbox[1] +
                   principia.hitbox[3] and principia.hitbox[0] - nefton.hitbox[2] <= nefton.hitbox[0] <=
                   principia.hitbox[0] + principia.hitbox[2]):
-                # principia.y += 300
-                nefton.extra_life()
-                window.blit(leibniz_pic, (nefton.x, nefton.y))
+
+                if principia.visible and apple.count % principia.count == 0:
+                    principia.toggle_visibility(False)
+                    nefton.extra_life()
+                    window.blit(leibniz_pic, (nefton.x, nefton.y))
 
             self.hitbox = (self.x + 78, self.y, 90, 250)
             # pygame.draw.rect(window, (255, 0, 0), self.hitbox, 1)
@@ -132,7 +134,6 @@ class Player(object):
         nefton.visible = False
         print('\ngame over')
 
-
     @staticmethod
     def extra_life():
 
@@ -157,7 +158,7 @@ class Apple(object):
         self.count_final = 0
         self.count_next_apple = 20
         self.next_speed = 10
-        self.death_number = 30
+        self.death_number = 33
 
     def draw(self, window):
 
@@ -243,22 +244,37 @@ class BasketFull(object):
 
 
 class Principia(object):
-    def __init__(self, x, y, width, hight):
+    def __init__(self, x, y, width, hight, count):
         self.x = x
         self.y = y
+        self.count = count
         self.coordinates = (self.x, self.y)
         self.width = width
         self.hight = hight
         self.hitbox = (self.x, self.y, 60, 60)
+        self.visible = True
 
     def draw(self, window):
-        if apple.count % 2 == 0 and not apple.count == 0:
+        if apple.count % self.count == 0 and not apple.count == 0:
             window.blit(principia_pic, (self.x, self.y))
 
+            self.y = win_hight - 150 - principia.hight
             self.hitbox = (self.x, self.y, 60, 60)
             pygame.draw.rect(window, (255, 0, 0), self.hitbox, 1)
+        elif apple.count % self.count != 0:
+            self.visible = True
+            self.x = random.randint(60, win_width - 60)
         else:
             self.x = random.randint(60, win_width - 60)
+
+    def toggle_visibility(self, visible):
+        self.visible = visible
+
+    def check_collision(self, player_hitbox):
+        # Überprüfe, ob es eine Kollision mit dem Spieler-Hitbox gibt
+        if (player_hitbox[1] - self.hitbox[3] <= self.hitbox[1] <= player_hitbox[1] + player_hitbox[3] and
+                player_hitbox[0] - self.hitbox[2] <= self.hitbox[0] <= player_hitbox[0] + player_hitbox[2]):
+            self.toggle_visibility(False)
 
 
 def redraw_game_window():
@@ -300,6 +316,7 @@ def redraw_game_window():
 
     pygame.display.update()
 
+
 nefton = Player(win_width - win_width // 2, win_hight - win_hight // 4, 250, 250, 3)
 apple = Apple(random.randint(60, win_width - 60), - 60, 60, 60, 30)
 apple_2 = Apple(random.randint(60, win_width - 60), - 60, 60, 60, 30)
@@ -308,7 +325,7 @@ apple_r = Apple(999, -60, 60, 60, 30)
 golden_apple = Apple(random.randint(60, win_width - 60), - 60, 60, 60, 30)
 font_apple = pygame.font.SysFont('arial', 50, True, True)
 font_highscore = pygame.font.SysFont('arial', 50, True, True)
-principia = Principia(random.randint(60, win_width - 60), 800, 60, 60)
+principia = Principia(random.randint(60, win_width - 60), 800, 60, 60, 100)
 basket_1 = Basket(60, 60)
 basket_2 = Basket(60, 60)
 basket_3 = Basket(60, 60)
