@@ -2,7 +2,12 @@
 
 import pygame
 import random
-import datetime
+import scoreboard
+import subprocess
+import name_input
+
+subprocess.run(['python', 'name_input'])
+name = str(name_input.player_id)
 
 pygame.init()
 
@@ -71,6 +76,7 @@ class Player(object):
             elif (principia.hitbox[1] - nefton.hitbox[3] <= nefton.hitbox[1] <= principia.hitbox[1] +
                   principia.hitbox[3] and principia.hitbox[0] - nefton.hitbox[2] <= nefton.hitbox[0] <=
                   principia.hitbox[0] + principia.hitbox[2]):
+                # principia.y += 300
                 nefton.extra_life()
                 window.blit(leibniz_pic, (nefton.x, nefton.y))
 
@@ -98,7 +104,7 @@ class Player(object):
             golden_apple.y = -60
             if apple.count >= apple.count_next_apple:
                 apple_2.y = apple.y
-            print('d/dx')
+            # print('d/dx')
         elif nefton.life > 1:
             apple.x = random.randint(50, win_width - 50)
             apple.y = - 60
@@ -111,7 +117,7 @@ class Player(object):
             apple.speed_actual = apple.speed_start
             nefton.hp = 99
             apple.apple_spawn_count = apple.abbruch
-            print('d/dx')
+            # print('d/dx')
         else:
             apple.speed_actual = 0
             nefton.hp = 0
@@ -132,7 +138,7 @@ class Player(object):
 
         nefton.hp = 99
 
-        print('\nextra life!!!')
+        # print('\nextra life!!!')
 
 
 class Apple(object):
@@ -294,7 +300,6 @@ def redraw_game_window():
 
     pygame.display.update()
 
-
 nefton = Player(win_width - win_width // 2, win_hight - win_hight // 4, 250, 250, 3)
 apple = Apple(random.randint(60, win_width - 60), - 60, 60, 60, 30)
 apple_2 = Apple(random.randint(60, win_width - 60), - 60, 60, 60, 30)
@@ -321,53 +326,17 @@ while run:
 
         if not nefton.visible:
 
-            def save_score(score):
-                with open("score_list.txt", "a") as file:
-                    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    file.write(f"{score} {current_time}\n")
-
-
-            def get_scores():
-                scores = []
-                with open("score_list.txt", "r") as file:
-                    for line in file:
-                        if line.strip():
-                            score, _ = line.strip().split(" ", 1)
-                            scores.append(int(score))
-                return scores
-
-
-            def get_time():
-                times = []
-                with open('score_list.txt', 'r') as file:
-                    for line in file:
-                        if line.strip():
-                            current_time, _ = line.strip().split('', 1)
-                            times.append(str(current_time))
-                            # noch nicht fertig!!!
-
-
-            def get_highest_score():
-                scores = get_scores()
-                if scores:
-                    highest_score = max(scores)
-                    return highest_score
-                else:
-                    return None
-
-
-            save_score(apple.count_final)
-
-            highest_score = get_highest_score()
-            if highest_score:
-                print(f"\nHighscore: {highest_score} \ndein Score: {apple.count_final}")
-            else:
-                print("Noch keine Punkte erfasst.")
-
             run = False
 
     keys = pygame.key.get_pressed()
 
     redraw_game_window()
 clock.tick(60)
+
 pygame.quit()
+
+score = apple.count_final
+score_list, top_ten, max_score = scoreboard.scoreboard(name, score)
+# print(top_ten.to_string(index=False))
+
+subprocess.run(['python', 'display_highscores.py'])
