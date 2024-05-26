@@ -20,20 +20,32 @@ def display_scores(top_ten, name):
                 personal_score = {'Nr.': None, 'Name': row['Name'], 'Score': int(row['Score']), 'Date': row['Date']}
                 break
 
-    score_window = pygame.display.set_mode((1000, 600))
+    score_window = pygame.display.set_mode((1000, 1000))
     pygame.display.set_caption('Highscores')
     score_font = pygame.font.SysFont('arial', 30, True)
     run = True
 
     while run:
         score_window.fill((0, 0, 0))
-        y_offset = 50
+        y_offset = 30
+
+        personal_score_text = score_font.render('Personal score:', 1, (255, 255, 255))
+        score_window.blit(personal_score_text, (50, y_offset))
+        y_offset += 40
+
         if personal_score:
-            personal_text = score_font.render(f"Your Score: {personal_score['Name']} / {personal_score['Score']} / {personal_score['Date']}", 1, (159, 121, 238))
+            personal_text = score_font.render(f"{personal_score['Name']} -- {personal_score['Score']} -- {personal_score['Date']}", 1, (159, 121, 238))
             score_window.blit(personal_text, (50, y_offset))
             y_offset += 40
-        for idx, score in enumerate(top_ten[:10]):
-            score_text = score_font.render(f"{idx + 1}. {score['Name']} / {score['Score']} / {score['Date']}", 1, (159, 121, 238))
+
+        y_offset += 20
+
+        top_ten_title_text = score_font.render('Top 20 scores', 1, (255, 255, 255))
+        score_window.blit(top_ten_title_text, (50, y_offset))
+        y_offset += 40
+
+        for idx, score in enumerate(top_ten[:20]):
+            score_text = score_font.render(f"{idx + 1}. {score['Name']} -- {score['Score']} -- {score['Date']}", 1, (159, 121, 238))
             score_window.blit(score_text, (50, y_offset))
             y_offset += 40
 
