@@ -5,9 +5,9 @@ import random
 import scoreboard
 import subprocess
 import name_input
+import display_highscores
 
-subprocess.run(['python', 'name_input'])
-name = str(name_input.player_id)
+name = name_input.get_player_name()
 
 pygame.init()
 
@@ -353,7 +353,7 @@ clock.tick(60)
 pygame.quit()
 
 score = apple.count_final
-score_list, top_ten, max_score = scoreboard.scoreboard(name, score)
-# print(top_ten.to_string(index=False))
 
-subprocess.run(['python', 'display_highscores.py'])
+score_list, top_ten, max_score = scoreboard.scoreboard(name, score)
+
+display_highscores.display_scores(top_ten, name)

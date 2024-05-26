@@ -1,32 +1,43 @@
-import sys
 import pygame
 
-pygame.init()
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode([1000,1000])
-base_font = pygame.font.Font(None, 32)
-befehl = 'PlayerId: '
-player_id = ''
+def get_player_name():
+    pygame.init()
+    screen = pygame.display.set_mode((400, 200))
+    font = pygame.font.Font(None, 32)
+    input_box = pygame.Rect(100, 50, 200, 32)
+    color_inactive = pygame.Color('lightskyblue3')
+    color_active = pygame.Color('dodgerblue2')
+    color = color_inactive
+    active = False
+    text = ''
+    done = False
 
-running = True
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_box.collidepoint(event.pos):
+                    active = not active
+                else:
+                    active = False
+                color = color_active if active else color_inactive
+            if event.type == pygame.KEYDOWN:
+                if active:
+                    if event.key == pygame.K_RETURN:
+                        done = True
+                    elif event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        text += event.unicode
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_BACKSPACE:
-                player_id = player_id[:-1]
-            elif event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
-                running = False
-            else:
-                player_id += event.unicode
+        screen.fill((30, 30, 30))
+        txt_surface = font.render(text, True, color)
+        width = max(200, txt_surface.get_width()+10)
+        input_box.w = width
+        screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
+        pygame.draw.rect(screen, color, input_box, 2)
+        pygame.display.flip()
 
-    screen.fill((0, 0, 0))
-    text_surface_befehl = base_font.render(befehl, True, (159, 121, 238))
-    text_surface_player_id = base_font.render(player_id, True, (159, 121, 238))
-    screen.blit(text_surface_befehl, (10, 10))
-    screen.blit(text_surface_player_id, (10 + text_surface_befehl.get_width(), 10))
-
-    pygame.display.flip()
-    clock.tick(60)
+    pygame.quit()
+    return text
