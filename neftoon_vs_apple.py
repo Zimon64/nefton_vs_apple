@@ -3,7 +3,6 @@
 import pygame
 import random
 import scoreboard
-import subprocess
 import name_input
 import display_highscores
 
@@ -11,10 +10,12 @@ name = name_input.get_player_name()
 
 pygame.init()
 
-win_width = 1000
-win_hight = 1000
+pygame.mouse.set_visible(False)
 
-window = pygame.display.set_mode((win_width, win_hight))
+win_width = 1000
+win_height = 1000
+
+window = pygame.display.set_mode((win_width, win_height))
 white = pygame.color.Color('#FFFFFF')
 pygame.display.set_caption('Nefton vs Apple')
 clock = pygame.time.Clock()
@@ -29,11 +30,11 @@ principia_pic = pygame.image.load('principia.png')
 
 
 class Player(object):
-    def __init__(self, x, y, width, hight, life):
+    def __init__(self, x, y, width, height, life):
         self.x = x
         self.y = y
         self.width = width
-        self.hight = hight
+        self.height = height
         self.speed = 10
         self.boundary = 30
         self.hitbox = (self.x + 10, self.y, 230, 250)
@@ -107,6 +108,7 @@ class Player(object):
             if apple.count >= apple.count_next_apple:
                 apple_2.y = apple.y
             # print('d/dx')
+            apple.next_speed = 0
         elif nefton.life > 1:
             apple.x = random.randint(50, win_width - 50)
             apple.y = - 60
@@ -143,11 +145,11 @@ class Player(object):
 
 
 class Apple(object):
-    def __init__(self, x, y, width, hight, radius):
+    def __init__(self, x, y, width, height, radius):
         self.x = x
         self.y = y
         self.width = width
-        self.hight = hight
+        self.height = height
         self.radius = radius
         self.speed_actual = 7
         self.speed_start = 7
@@ -162,7 +164,7 @@ class Apple(object):
 
     def draw(self, window):
 
-        if apple.y < win_hight:
+        if apple.y < win_height:
             apple.y += apple.speed_actual
             if apple.count >= apple.count_next_apple:
                 apple_2.y += apple.speed_actual
@@ -205,7 +207,7 @@ class Apple(object):
             apple_r.x = 999
             apple.count += 1
 
-        if golden_apple.y <= win_hight and apple.count % golden_apple.death_number == 0 and apple.count > 0:
+        if golden_apple.y <= win_height and apple.count % golden_apple.death_number == 0 and apple.count > 0:
             golden_apple.y += apple.speed_actual
         else:
             golden_apple.x = random.randint(50, win_width - 50)
@@ -221,7 +223,7 @@ class Apple(object):
         # pygame.draw.rect(window, (255, 0, 0), apple_l.hitbox, 1)
         if apple.count % golden_apple.death_number == 0 and apple.count > 0:
             golden_apple.hitbox = (golden_apple.x, apple_l.y, 60, 60)
-            pygame.draw.rect(window, (255, 0, 0), golden_apple.hitbox, 1)
+            # pygame.draw.rect(window, (255, 0, 0), golden_apple.hitbox, 1)
         else:
             golden_apple.hitbox = (golden_apple.x, golden_apple.y, 60, 60)
 
@@ -230,27 +232,27 @@ class Apple(object):
 
 
 class Basket(object):
-    def __init__(self, width, hight):
+    def __init__(self, width, height):
         self.width = width
-        self.hight = hight
+        self.height = height
         self.picture = pygame.image.load('korb.png')
 
 
 class BasketFull(object):
-    def __init__(self, width, hight):
+    def __init__(self, width, height):
         self.width = width
-        self.higth = hight
+        self.higth = height
         self.picture = pygame.image.load('korb_voll.png')
 
 
 class Principia(object):
-    def __init__(self, x, y, width, hight, count):
+    def __init__(self, x, y, width, height, count):
         self.x = x
         self.y = y
         self.count = count
         self.coordinates = (self.x, self.y)
         self.width = width
-        self.hight = hight
+        self.height = height
         self.hitbox = (self.x, self.y, 60, 60)
         self.visible = True
 
@@ -258,7 +260,7 @@ class Principia(object):
         if apple.count % self.count == 0 and not apple.count == 0:
             window.blit(principia_pic, (self.x, self.y))
 
-            self.y = win_hight - 150 - principia.hight
+            self.y = win_height - 150 - principia.height
             self.hitbox = (self.x, self.y, 60, 60)
             pygame.draw.rect(window, (255, 0, 0), self.hitbox, 1)
         elif apple.count % self.count != 0:
@@ -317,7 +319,7 @@ def redraw_game_window():
     pygame.display.update()
 
 
-nefton = Player(win_width - win_width // 2, win_hight - win_hight // 4, 250, 250, 3)
+nefton = Player(win_width - win_width // 2, win_height - win_height // 4, 250, 250, 3)
 apple = Apple(random.randint(60, win_width - 60), - 60, 60, 60, 30)
 apple_2 = Apple(random.randint(60, win_width - 60), - 60, 60, 60, 30)
 apple_l = Apple(-59, -60, 60, 60, 30)
@@ -340,9 +342,11 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                run = False
 
         if not nefton.visible:
-
             run = False
 
     keys = pygame.key.get_pressed()
