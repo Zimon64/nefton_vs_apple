@@ -108,7 +108,7 @@ class Player(object):
             if apple.count >= apple.count_next_apple:
                 apple_2.y = apple.y
             # print('d/dx')
-            apple.next_speed = 0
+            apple.next_speed = 10
         elif nefton.life > 1:
             apple.x = random.randint(50, win_width - 50)
             apple.y = - 60
@@ -121,6 +121,7 @@ class Player(object):
             apple.speed_actual = apple.speed_start
             nefton.hp = 99
             apple.apple_spawn_count = apple.abbruch
+            apple.next_speed = 10
             # print('d/dx')
         else:
             apple.speed_actual = 0
